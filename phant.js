@@ -87,6 +87,7 @@ Phant.prototype.create = function(paramd, callback) {
             } else if (!result.body.success) {
                 callback(result.body.message, null)
             } else {
+                console.log(result)
                 callback(null, {
                     title: result.body.stream.title,
                     description: result.body.stream.description,
