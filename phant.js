@@ -122,7 +122,6 @@ Phant.prototype.create = function(paramd, callback) {
 Phant.prototype.connect = function(streamd, callback) {
     var self = this
 
-    console.log(streamd)
     if (is_iri(streamd)) {
         var parts = streamd.match(/^(.*)\/streams\/([^\/]*)/)
         if (!parts) {
