@@ -201,6 +201,10 @@ Phant.prototype.next = function(streamd, callback) {
             if (result.error) {
                 if (result.error.code) {
                     callback(result.error.code, null)
+                } else if (result.body) {
+                    // deceptive: an error is returned for empty streams
+                    streamd.__eof = true
+                    callback(null, null)
                 } else {
                     callback("error reading stream", null)
                 }
@@ -340,6 +344,15 @@ Phant.prototype.add = function(streamd, rd, callback) {
  *  A new streamd
  */
 Phant.prototype.scrub = function(streamd) {
+    var nd = {}
+
+    for (var key in streamd) {
+        if (!key.match(/^__/)) {
+            nd[key] = streamd[key]
+        }
+    }
+    
+    return nd
 }
 
 /**
@@ -353,13 +366,13 @@ Phant.prototype.scrub = function(streamd) {
  *  Stream record. You must still should send this to
  *  {@link Phant#connect connect} to use.
  */
-Phant.prototype.load_stream = function(filename) {
+Phant.prototype.load = function(filename) {
     return JSON.parse(fs.readFileSync(filename, { encoding: 'utf8' }))
 }
 
 /**
  *  Helper function to save a stream record
- *  to a file.
+ *  to a file. The stream record 
  *
  *  @param {String} filename
  *  File to save to 
@@ -369,8 +382,8 @@ Phant.prototype.load_stream = function(filename) {
  *  {@link Phant#connect connect} or
  *  {@link Phant#create create}.
  */
-Phant.prototype.save_stream = function(filename, streamd) {
-    fs.writeFileSync(filename, JSON.stringify(streamd, null, 2) + "\n")
+Phant.prototype.save = function(filename, streamd) {
+    fs.writeFileSync(filename, JSON.stringify(this.scrub(streamd), null, 2) + "\n")
 }
 
 /**

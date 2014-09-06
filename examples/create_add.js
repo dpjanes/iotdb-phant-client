@@ -25,15 +25,17 @@ phant.create(streamd, function(error, streamd) {
     if (error) {
         console.log("# create-error", error)
     } else {
-        phant.save_stream("stream.json", streamd)
-        phant.add(streamd, {
-            a: 1
-        }, function(error) {
+        var add_callback = function(error) {
             if (error) {
                 console.log("+ add-error", error)
             } else {
                 console.log("+ add ok")
             }
-        })
+        }
+
+        phant.save("stream.json", streamd)
+        phant.add(streamd, { a: 1 }, add_callback)
+        phant.add(streamd, { a: 2, b: 1 }, add_callback)
+        phant.add(streamd, { a: 3, b: 2, c: "Hello, World\n" }, add_callback)
     }
 })
