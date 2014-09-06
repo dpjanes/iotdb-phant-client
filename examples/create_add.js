@@ -8,6 +8,7 @@
  *  Demonstrate:
  *  - creating a new feed
  *  - adding a record
+ *  - save a stream to file
  */
 
 "use strict"
@@ -22,8 +23,9 @@ var streamd = {
 }
 phant.create(streamd, function(error, streamd) {
     if (error) {
-        console.log("+ create-error", error)
+        console.log("# create-error", error)
     } else {
+        phant.save_stream("stream.json", streamd)
         phant.add(streamd, {
             a: 1
         }, function(error) {

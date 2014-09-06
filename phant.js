@@ -26,6 +26,7 @@
 "use strict"
 
 var unirest = require('unirest')
+var fs = require('fs')
 
 /**
  *  Connect to a Phant server
@@ -117,12 +118,10 @@ Phant.prototype.connect = function(streamd, callback) {
     var self = this
 
     unirest
-        .get(self.iri + '/streams/' + streamd.publicKey)
+        .get(streamd.manageUrl)
         .headers({ 
             'Accept': 'application/json',
-            // 'Phant-Private-Key': streamd.privateKey
         })
-        // .type('json')
         .end(function(result) {
             if (result.error) {
                 if (result.body) {
@@ -139,9 +138,9 @@ Phant.prototype.connect = function(streamd, callback) {
                     title: result.body.stream.title,
                     description: result.body.stream.description,
                     fields: result.body.stream.fields,
-                    outputUrl: self.iri + '/output/' + result.body.publicKey,
-                    inputUrl: self.iri + '/input/' + result.body.publicKey,
-                    manageUrl: self.iri + '/streams/' + result.body.publicKey,
+                    outputUrl: streamd.outputUrl,
+                    inputUrl: streamd.inputUrl,
+                    manageUrl: streamd.manageUrl,
                     publicKey: streamd.publicKey,
                     privateKey: streamd.privateKey,
                     deleteKey: streamd.deleteKey
@@ -192,7 +191,7 @@ Phant.prototype.next = function(streamd, callback) {
     /*
      *  If we get here we need to fetch a new record
      */
-    var iri = self.iri + '/output/' + streamd.publicKey + '.json?offset=' + streamd.__offset
+    var iri = streamd.outputUrl + '.json?offset=' + streamd.__offset
     unirest
         .get(iri)
         .headers({ 
@@ -249,7 +248,7 @@ Phant.prototype.latest = function(streamd, callback) {
     var self = this
 
     unirest
-        .get(self.iri + '/output/' + streamd.publicKey + '/latest.json')
+        .get(streamd.outputUrl + '/latest.json')
         .headers({ 
             'Accept': 'application/json',
         })
@@ -257,6 +256,9 @@ Phant.prototype.latest = function(streamd, callback) {
             if (result.error) {
                 if (result.error.code) {
                     callback(result.error.code, null)
+                } else if (result.body) {
+                    // deceptive: an error is returned for empty streams
+                    callback(null, null)
                 } else {
                     callback("error reading stream", null)
                 }
@@ -277,7 +279,7 @@ Phant.prototype.latest = function(streamd, callback) {
  *  {@link Phant#connect connect} or
  *  {@link Phant#create create}.
  *
- *  @param {Phant~op_callback} callback
+ *  @param {Phant~op_callback|undefined} callback
  */
 Phant.prototype.add = function(streamd, rd, callback) {
     var self = this
@@ -291,7 +293,7 @@ Phant.prototype.add = function(streamd, rd, callback) {
     rd = defaults(rd, {})
 
     unirest
-        .post(self.iri + '/input/' + streamd.publicKey)
+        .post(streamd.inputUrl)
         .headers({ 
             'Accept': 'application/json',
             'Phant-Private-Key': streamd.privateKey
@@ -299,7 +301,8 @@ Phant.prototype.add = function(streamd, rd, callback) {
         .type('json')
         .send(rd)
         .end(function(result) {
-            if (result.error) {
+            if (!callback) {
+            } else if (result.error) {
                 if (result.body) {
                     callback(result.body.message, null)
                 } else if (result.error.code) {
@@ -337,6 +340,37 @@ Phant.prototype.add = function(streamd, rd, callback) {
  *  A new streamd
  */
 Phant.prototype.scrub = function(streamd) {
+}
+
+/**
+ *  Helper function to load a stream record
+ *  from a file.
+ *
+ *  @param {String} filename
+ *  File to load from
+ *
+ *  @param {object} streamd
+ *  Stream record. You must still should send this to
+ *  {@link Phant#connect connect} to use.
+ */
+Phant.prototype.load_stream = function(filename) {
+    return JSON.parse(fs.readFileSync(filename, { encoding: 'utf8' }))
+}
+
+/**
+ *  Helper function to save a stream record
+ *  to a file.
+ *
+ *  @param {String} filename
+ *  File to save to 
+ *
+ *  @param {object} streamd
+ *  As returned by
+ *  {@link Phant#connect connect} or
+ *  {@link Phant#create create}.
+ */
+Phant.prototype.save_stream = function(filename, streamd) {
+    fs.writeFileSync(filename, JSON.stringify(streamd, null, 2) + "\n")
 }
 
 /**

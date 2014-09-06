@@ -36,6 +36,10 @@ object.
 
 ### Connecting to an existing stream
 
+Note that if the stream as created on a different Phant server,
+it will work exactly as expected. The <code>streamd</code> 
+records the location of the server it connected to.
+
     phant.connect(streamd, function(error, streamd) {
         /* do stuff */
     })
