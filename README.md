@@ -44,6 +44,14 @@ records the location of the server it connected to.
         /* do stuff */
     })
 
+### Connecting to an IRI
+
+If you have a 'streams' IRI, you can connect directly to that
+    
+    var iri = 'https://data.sparkfun.com/streams/dZ4EVmE8yGCRGx5XRX1W'
+    phant.connect(iri, function(error, streamd) {
+        /* do stuff */
+    })
 
 ### Adding a record
 

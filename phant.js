@@ -106,17 +106,37 @@ Phant.prototype.create = function(paramd, callback) {
 }
 
 /**
- *  Connect to a stream
+ *  Connect to a stream, via a stream
+ *  record or a stream IRI
  *
- *  @param {object} streamd
+ *  @param {object|iri} streamd
  *  @param {String|undefined} streamd.publicKey
  *  @param {String|undefined} streamd.privateKey
  *  @param {String|undefined} streamd.deleteKey
+ *  If 'streamid' is an IRI string, it
+ *  will be assumed to be an management-type URL
+ *  e.g. 'https://data.sparkfun.com/streams/dZ4EVmE8yGCRGx5XRX1W'
  *
  *  @param {Phant~stream_callback} callback
  */
 Phant.prototype.connect = function(streamd, callback) {
     var self = this
+
+    console.log(streamd)
+    if (is_iri(streamd)) {
+        var parts = streamd.match(/^(.*)\/streams\/([^\/]*)/)
+        if (!parts) {
+            callback("unrecognized iri format: " + streamd)
+            return
+        }
+
+        streamd = {
+            publicKey: parts[2],
+            outputUrl: parts[1] + "/output/" + parts[2],
+            inputUrl: parts[1] + "/input/" + parts[2],
+            manageUrl: parts[1] + "/streams/" + parts[2]
+        }
+    } 
 
     unirest
         .get(streamd.manageUrl)
@@ -139,7 +159,7 @@ Phant.prototype.connect = function(streamd, callback) {
                     title: result.body.stream.title,
                     description: result.body.stream.description,
                     fields: result.body.stream.fields,
-                    outputUrl: streamd.outputUrl,
+                    outputUrl: streamd.outputUrl,   // this can be done better
                     inputUrl: streamd.inputUrl,
                     manageUrl: streamd.manageUrl,
                     publicKey: streamd.publicKey,
@@ -405,6 +425,18 @@ var defaults = function(paramd, defaultd) {
     }
 
     return paramd;
+}
+
+var is_string = function(value) {
+    return typeof value === "string"
+}
+
+var is_iri = function(value) {
+    if (!is_string(value)) {
+        return false
+    }
+
+    return value.match(/^https?:\/\//) ? true : false
 }
 
 /**
