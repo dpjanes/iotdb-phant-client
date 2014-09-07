@@ -52,6 +52,7 @@ print 'new package version:', jd['version']
             LICENSE \
             phant.js \
             package.json \
+            bin/*js \
             |
         ( cd "${NPM_IOTDB_DST}" && tar xvf - )
 

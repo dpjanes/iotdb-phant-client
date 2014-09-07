@@ -328,11 +328,72 @@ Phant.prototype.add = function(streamd, rd, callback) {
             if (!callback) {
             } else if (result.error) {
                 if (result.body) {
-                    callback(result.body.message, null)
+                    callback(result.body.message)
                 } else if (result.error.code) {
                     callback(result.error.code)
                 } else {
                     callback("error adding to stream")
+                }
+            } else if (!result.body.success) {
+                callback(result.body.message)
+            } else {
+                callback(null)
+            }
+        })
+    ;
+}
+
+/**
+ *  Update the metadata of a stream.
+ *  <p>
+ *  <b>WARNING</b>: may wipe out data?
+ *
+ *  @param {object} streamd
+ *  As returned by
+ *  {@link Phant#connect connect} or
+ *  {@link Phant#create create}.
+ *
+ *  @param {object} paramd
+ *  @param {String} paramd.title
+ *  @param {String} paramd.description
+ *  @param {String} paramd.fields
+ *  ... and more ...
+ *
+ *  @param {Phant~op_callback|undefined} callback
+ */
+Phant.prototype.update = function(streamd, paramd, callback) {
+    var self = this
+
+    paramd = defaults(paramd, {
+        title: streamd.title,
+        description: streamd.description
+    })
+
+    // API oddness
+    if (paramd.fields)  {
+        paramd.field_check = ''
+    } else {
+        paramd.fields = streamd.fields.join(",")
+        paramd.field_check = streamd.fields.join(",")
+    }
+
+    unirest
+        .post(streamd.manageUrl + '/update/' + streamd.privateKey + '.json')
+        .headers({ 
+            'Accept': 'application/json',
+            'Phant-Private-Key': streamd.privateKey
+        })
+        .type('json')
+        .send(paramd)
+        .end(function(result) {
+            if (!callback) {
+            } else if (result.error) {
+                if (result.body) {
+                    callback(result.body.message)
+                } else if (result.error.code) {
+                    callback(result.error.code)
+                } else {
+                    callback("error updating metadata")
                 }
             } else if (!result.body.success) {
                 callback(result.body.message)
