@@ -76,18 +76,16 @@ Phant.prototype.create = function(paramd, callback) {
             fields: paramd.fields
         })
         .end(function(result) {
-            if (result.error) {
-                if (result.body) {
+            if (result.error || !result.body.success) {
+                if (result.body && result.body.message) {
                     callback(result.body.message, null)
                 } else if (result.error.code) {
                     callback(result.error.code, null)
                 } else {
-                    callback("error creating stream", null)
+                    console.error("# Phant.create", "unknown error text follows as-is", "\n" + result.body)
+                    callback("error creating stream [unknown error]", null)
                 }
-            } else if (!result.body.success) {
-                callback(result.body.message, null)
             } else {
-                console.log(result)
                 callback(null, {
                     title: result.body.stream.title,
                     description: result.body.stream.description,
@@ -143,16 +141,15 @@ Phant.prototype.connect = function(streamd, callback) {
             'Accept': 'application/json',
         })
         .end(function(result) {
-            if (result.error) {
+            if (result.error || !result.body.success) {
                 if (result.body) {
                     callback(result.body.message, null)
                 } else if (result.error.code) {
                     callback(result.error.code, null)
                 } else {
-                    callback("error connecting to stream", null)
+                    console.error("# Phant.create", "unknown error text follows as-is", "\n" + result.body)
+                    callback("error connecting to stream [unknown error]", null)
                 }
-            } else if (!result.body.success) {
-                callback(result.body.message, null)
             } else {
                 callback(null, {
                     title: result.body.stream.title,
@@ -326,16 +323,15 @@ Phant.prototype.add = function(streamd, rd, callback) {
         .send(rd)
         .end(function(result) {
             if (!callback) {
-            } else if (result.error) {
+            } else if (result.error || !result.body.success) {
                 if (result.body) {
                     callback(result.body.message)
                 } else if (result.error.code) {
                     callback(result.error.code)
                 } else {
-                    callback("error adding to stream")
+                    console.error("# Phant.create", "unknown error text follows as-is", "\n" + result.body)
+                    callback("error adding to stream [unknown error]")
                 }
-            } else if (!result.body.success) {
-                callback(result.body.message)
             } else {
                 callback(null)
             }
@@ -387,16 +383,15 @@ Phant.prototype.update = function(streamd, paramd, callback) {
         .send(paramd)
         .end(function(result) {
             if (!callback) {
-            } else if (result.error) {
+            } else if (result.error || !result.body.success) {
                 if (result.body) {
                     callback(result.body.message)
                 } else if (result.error.code) {
                     callback(result.error.code)
                 } else {
-                    callback("error updating metadata")
+                    console.error("# Phant.create", "unknown error text follows as-is", "\n" + result.body)
+                    callback("error updating metadata [unknown error]")
                 }
-            } else if (!result.body.success) {
-                callback(result.body.message)
             } else {
                 callback(null)
             }
