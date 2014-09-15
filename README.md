@@ -1,7 +1,7 @@
 iotdb-phant-client
 ==================
 
-Node Client for Phant
+Node Client for Phant.
 
 ## Usage
 To connect to [data.sparkfun.com](http://data.sparkfun.com)
@@ -12,6 +12,15 @@ To connect to [data.sparkfun.com](http://data.sparkfun.com)
 To connect to your own [Phant](http://phant.io/) server:
 
     var phant = new Phant({ "iri": "http://localhost:8080" })
+
+**IMPORTANT NOTE**
+
+If you are using your own Phant server, you must be
+running <code>phant-manager-http</code>. 
+Make sure you follow the instructions in the README.md
+on this page:
+
+    https://github.com/sparkfun/phant-manager-http
 
 ### Creating a new stream
 Functions
