@@ -6,7 +6,7 @@ Node Client for Phant.
 ## Usage
 To connect to [data.sparkfun.com](http://data.sparkfun.com)
 
-    var Phant = require('phant-client')
+    var Phant = require('phant-client').Phant
     var phant = new Phant()
 
 To connect to your own [Phant](http://phant.io/) server:
