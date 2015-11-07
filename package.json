@@ -1,0 +1,28 @@
+{
+    "author": {
+        "email": "davidjanes@iotdb.org", 
+        "name": "David P. Janes", 
+        "url": "https://iotdb.org"
+    }, 
+    "bin": {
+        "phant-latest": "./bin/phant-latest.js"
+    }, 
+    "bugs": {
+        "url": "https://github.com/dpjanes/iotdb-phant-client/issues"
+    }, 
+    "dependencies": {
+        "minimist": "~1.2.0", 
+        "unirest": "~0.4.2"
+    }, 
+    "description": "Node Phant Client", 
+    "homepage": "https://iotdb.org", 
+    "license": "Apache-2.0", 
+    "main": "phant.js", 
+    "name": "phant-client", 
+    "private": false, 
+    "repository": {
+        "type": "git", 
+        "url": "https://github.com/dpjanes/iotdb-phant-client"
+    }, 
+    "version": "0.0.6"
+}
