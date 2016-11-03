@@ -15,7 +15,7 @@
         "unirest": "~0.4.2"
     }, 
     "description": "Node Phant Client", 
-    "homepage": "https://iotdb.org", 
+    "homepage": "https://github.com/dpjanes/node-iotdb",
     "license": "Apache-2.0", 
     "main": "phant.js", 
     "name": "phant-client", 
