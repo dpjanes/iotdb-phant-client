@@ -80,10 +80,10 @@ Phant.prototype.create = function(paramd, callback) {
                 if (result.body && result.body.message) {
                     callback(result.body.message, null)
                 } else if (result.error.code) {
-                    callback(result.error.code, null)
+                    callback(result.error);
                 } else {
                     console.error("# Phant.create", "unknown error text follows as-is", "\n" + result.body)
-                    callback("error creating stream [unknown error]", null)
+                    callback(new Error("error creating stream [unknown error]"));
                 }
             } else {
                 callback(null, {
@@ -123,7 +123,7 @@ Phant.prototype.connect = function(streamd, callback) {
     if (is_iri(streamd)) {
         var parts = streamd.match(/^(.*)\/streams\/([^\/]*)/)
         if (!parts) {
-            callback("unrecognized iri format: " + streamd)
+            callback(new Error("unrecognized iri format: " + streamd));
             return
         }
 
@@ -144,11 +144,11 @@ Phant.prototype.connect = function(streamd, callback) {
             if (result.error || !result.body.success) {
                 if (result.body) {
                     callback(result.body.message, null)
-                } else if (result.error.code) {
-                    callback(result.error.code, null)
+                } else if (result.error) {
+                    callback(result.error, null)
                 } else {
                     console.error("# Phant.create", "unknown error text follows as-is", "\n" + result.body)
-                    callback("error connecting to stream [unknown error]", null)
+                    callback(new Error("error connecting to stream [unknown error]"));
                 }
             } else {
                 callback(null, {
@@ -217,13 +217,13 @@ Phant.prototype.next = function(streamd, callback) {
         .end(function(result) {
             if (result.error) {
                 if (result.error.code) {
-                    callback(result.error.code, null)
+                    callback(result.error, null)
                 } else if (result.body) {
                     // deceptive: an error is returned for empty streams
                     streamd.__eof = true
                     callback(null, null)
                 } else {
-                    callback("error reading stream", null)
+                    callback(new Error("error reading stream"));
                 }
             } else {
                 streamd.__rds.push.apply(streamd.__rds, result.body)
@@ -276,12 +276,12 @@ Phant.prototype.latest = function(streamd, callback) {
         .end(function(result) {
             if (result.error) {
                 if (result.error.code) {
-                    callback(result.error.code, null)
+                    callback(result.error, null)
                 } else if (result.body) {
                     // deceptive: an error is returned for empty streams
                     callback(null, null)
                 } else {
-                    callback("error reading stream", null)
+                    callback(new Error("error reading stream"));
                 }
             } else if (result.body) {
                 callback(null, result.body[0])
@@ -327,10 +327,10 @@ Phant.prototype.add = function(streamd, rd, callback) {
                 if (result.body) {
                     callback(result.body.message)
                 } else if (result.error.code) {
-                    callback(result.error.code)
+                    callback(result.error)
                 } else {
                     console.error("# Phant.create", "unknown error text follows as-is", "\n" + result.body)
-                    callback("error adding to stream [unknown error]")
+                    callback(new Error("error adding to stream [unknown error]"));
                 }
             } else {
                 callback(null)
@@ -387,10 +387,10 @@ Phant.prototype.update = function(streamd, paramd, callback) {
                 if (result.body) {
                     callback(result.body.message)
                 } else if (result.error.code) {
-                    callback(result.error.code)
+                    callback(result.error)
                 } else {
                     console.error("# Phant.create", "unknown error text follows as-is", "\n" + result.body)
-                    callback("error updating metadata [unknown error]")
+                    callback(new Error("error updating metadata [unknown error]"));
                 }
             } else {
                 callback(null)
