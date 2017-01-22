@@ -432,6 +432,60 @@ Phant.prototype.scrub = function(streamd) {
 }
 
 /**
+ *  Returns a stream given a name
+ *
+ *  @param {String} streamname
+ *  The name of the stream
+ *
+ *  @param {Phant~stream_callback} callback
+ */
+Phant.prototype.findstream = function(streamname, callback){
+    var self = this
+
+    if(streamname == ""){
+        callback(new Error("Streamname cannot be the empty String"), null);
+        return;
+    }
+
+    unirest
+        .get(self.iri + "/streams")
+        .headers({ 'Accept': 'application/json' })
+        .type('json')
+                .end(function(result) {
+            if (result.error || !result.body.success) {
+                if (result.body && result.body.message) {
+                    callback(result.body.message, null)
+                } else if (result.error.code) {
+                    callback(result.error, null);
+                } else {
+                    console.error("# Phant.findstream", "Unknown error text follows as-is", "\n" + result.body);
+                    callback(new Error("Error getting streams [unknown error]"), null);
+                }
+            } else {
+                console.log(result.body);
+                var streams = result.body.streams;
+                for(var i = 0; i < streams.length; i++){
+                    if(streams[i].title == streamname){
+                        callback(null, {
+                            title: streams[i].title,
+                            description: streams[i].description,
+                            fields: streams[i].fields,
+                            outputUrl: self.iri + '/output/' + streams[i].publicKey,
+                            inputUrl: self.iri + '/input/' + streams[i].publicKey,
+                            manageUrl: self.iri + '/streams/' + streams[i].publicKey,
+                            publicKey: streams[i].publicKey
+                        })
+                        return;
+                    }
+                }
+                callback(new Error("Stream not found"), null);
+            }
+
+        })
+    ;
+}
+
+/**
  *  Helper function to load a stream record
  *  from a file.
  *
